@@ -404,7 +404,7 @@ export profile_dir_path=$build_dir/.profile.d
 
 status "---------------------------debug-----------------------------"
 status `ls "$build_dir/.heroku/php/"`
-status `cat "$build_dir/.heroku/php/composer.json"`
+#status `cat "$build_dir/.heroku/php/composer.json"`
 status "---------------------------debug-----------------------------"
 
 if composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-dev"} 2>&1 | tee $build_dir/.heroku/php/install.log | ( grep --line-buffered -E '^  - (Instal|Enab)ling heroku-sys/' | sed -u -E -e 's/^  - (Instal|Enab)ling /- /' -e 's/heroku-sys\///g' || true ) | indent; then
