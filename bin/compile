@@ -580,6 +580,8 @@ else
 	fi
 fi
 
+status `php -m`
+
 status "Installing dependencies..."
 
 # echo composer version for info purposes
