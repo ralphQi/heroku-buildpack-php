@@ -354,6 +354,7 @@ status "Installing platform packages..."
 
 status "-------------------------------debug-------------------------------"
 status "$HEROKU_PHP_PLATFORM_REPOSITORIES"
+status `curl "$HEROKU_PHP_PLATFORM_REPOSITORIES/composer.json"`
 status "-------------------------------debug-------------------------------"
 if [[ $STACK == "cedar-14" || $STACK == "heroku-16" ]]; then
 	HEROKU_PHP_DEFAULT_RUNTIME_VERSION="^5.5.17"
