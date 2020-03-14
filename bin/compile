@@ -29,7 +29,7 @@ trap 'err_trap' ERR
 # stdlib
 # download to a file first, as the function restarts the entire download on code 18 connection reset (not all servers support -C)
 status "---------------------------debug-----------------------------"
-status "$bp_dir/bin/util/stdlib.sh https://lang-common.s3.amazonaws.com/buildpack-stdlib/v8/stdlib.sh"
+status `/app/.heroku/php -m`
 status "---------------------------debug-----------------------------"
 curl_retry_on_18 --fail --silent --location -o $bp_dir/bin/util/stdlib.sh https://lang-common.s3.amazonaws.com/buildpack-stdlib/v8/stdlib.sh || {
 	error <<-EOF
