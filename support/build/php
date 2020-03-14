@@ -122,7 +122,7 @@ if [[ $dep_version == 7.* ]]; then
 			configureopts+=("--with-webp") # for ext-gd
 		fi
 	fi
-	
+
 	if [[ $dep_version == 7.[0-1].* ]]; then
 		configureopts+=("--with-mcrypt=shared")
 	else
@@ -159,6 +159,7 @@ export PATH=${OUT_PREFIX}/bin:$PATH
 		--with-kerberos \
 	--with-pgsql \
 	--with-pdo-pgsql \
+	--with-pdo-sqlsrv \
 	--with-readline \
 	--enable-sockets \
 	--with-zlib \

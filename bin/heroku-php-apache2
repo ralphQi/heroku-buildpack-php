@@ -9,8 +9,6 @@ shopt -s extglob
 # for detecting when -l 'logs/*.log' matches nothing
 shopt -s nullglob
 
-echo "Ralph Qi" > /tmp/ralph.txt
-
 if ! type -p "realpath" > /dev/null; then
 	# cedar-14 and macOS don't have realpath
 	# readlink is not an option because BSD readlink does not have the GNU -f option
