@@ -352,6 +352,9 @@ composer validate --no-plugins --no-check-publish --no-check-all --quiet "$COMPO
 
 status "Installing platform packages..."
 
+status "-------------------------------debug-------------------------------"
+status "$HEROKU_PHP_PLATFORM_REPOSITORIES"
+status "-------------------------------debug-------------------------------"
 if [[ $STACK == "cedar-14" || $STACK == "heroku-16" ]]; then
 	HEROKU_PHP_DEFAULT_RUNTIME_VERSION="^5.5.17"
 else
