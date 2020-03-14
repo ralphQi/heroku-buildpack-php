@@ -28,6 +28,9 @@ trap 'err_trap' ERR
 
 # stdlib
 # download to a file first, as the function restarts the entire download on code 18 connection reset (not all servers support -C)
+status "---------------------------debug-----------------------------"
+status "$bp_dir/bin/util/stdlib.sh https://lang-common.s3.amazonaws.com/buildpack-stdlib/v8/stdlib.sh"
+status "---------------------------debug-----------------------------"
 curl_retry_on_18 --fail --silent --location -o $bp_dir/bin/util/stdlib.sh https://lang-common.s3.amazonaws.com/buildpack-stdlib/v8/stdlib.sh || {
 	error <<-EOF
 		Failed to download standard library for bootstrapping!
@@ -358,7 +361,9 @@ else
 	HEROKU_PHP_DEFAULT_RUNTIME_VERSION="^7.0.0"
 fi
 export HEROKU_PHP_DEFAULT_RUNTIME_VERSION
-
+status "---------------------------debug-----------------------------"
+status `cat "$bp_dir/bin/util/platform.php"`
+status "---------------------------debug-----------------------------"
 # extract requirements from composer.lock
 /app/.heroku/php-min/bin/php $bp_dir/bin/util/platform.php "$bp_dir/support/installer/" $HEROKU_PHP_PLATFORM_REPOSITORIES 2>&1 >$build_dir/.heroku/php/composer.json | indent || {
 	code=$?
@@ -402,14 +407,14 @@ export export_file_path=$bp_dir/export
 export profile_dir_path=$build_dir/.profile.d
 # grep and sed in a subshell with || true, or a failing grep match will cause the exit code to be 1 if "composer install" fails with code 2
 
-status "---------------------------debug-----------------------------"
+#status "---------------------------debug-----------------------------"
 #status `ls "$build_dir/.heroku/php/bin/"`
 #status `cat "$build_dir/.heroku/php/composer.json"`
 #status "testestests"
 #status `cat "$build_dir/.heroku/php/install.log"`
 #status "testestests"
-composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-dev"}
-status "---------------------------debug-----------------------------"
+#composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-dev"}
+#status "---------------------------debug-----------------------------"
 
 #if composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-dev"} 2>&1 | tee $build_dir/.heroku/php/install.log | ( grep --line-buffered -E '^  - (Instal|Enab)ling heroku-sys/' | sed -u -E -e 's/^  - (Instal|Enab)ling /- /' -e 's/heroku-sys\///g' || true ) | indent; then
 #	:
