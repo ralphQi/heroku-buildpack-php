@@ -25,7 +25,7 @@ source $bp_dir/bin/util/common.sh
 # use err_trap from common.sh on error
 # we do not 'set -o errtrace', because that would cause subshell failures to fire the trap twice, e.g. with someval=$(func_that_fails)
 trap 'err_trap' ERR
-
+status "-----------------recover-----------------"
 # stdlib
 # download to a file first, as the function restarts the entire download on code 18 connection reset (not all servers support -C)
 curl_retry_on_18 --fail --silent --location -o $bp_dir/bin/util/stdlib.sh https://lang-common.s3.amazonaws.com/buildpack-stdlib/v8/stdlib.sh || {
