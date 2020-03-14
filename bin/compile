@@ -359,6 +359,7 @@ else
 fi
 export HEROKU_PHP_DEFAULT_RUNTIME_VERSION
 
+status "1"
 status `php -m`
 
 # extract requirements from composer.lock
@@ -394,14 +395,26 @@ status `php -m`
 	fi
 }
 
+status "2"
+status `php -m`
+
+
 # reset COMPOSER for the platform install step
 COMPOSER_bak="$COMPOSER"
 export COMPOSER=composer.json
+
+status "3"
+status `php -m`
 
 # pass export_file_path and profile_dir_path to composer install; they will be used by the installer plugin
 # they are also used in later install attempts for add-on extensions (blackfire, newrelic, ...)
 export export_file_path=$bp_dir/export
 export profile_dir_path=$build_dir/.profile.d
+
+
+status "4"
+status `php -m`
+
 # grep and sed in a subshell with || true, or a failing grep match will cause the exit code to be 1 if "composer install" fails with code 2
 if composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-dev"} 2>&1 | tee $build_dir/.heroku/php/install.log | ( grep --line-buffered -E '^  - (Instal|Enab)ling heroku-sys/' | sed -u -E -e 's/^  - (Instal|Enab)ling /- /' -e 's/heroku-sys\///g' || true ) | indent; then
 	:
@@ -493,6 +506,8 @@ elif composer show -d "$build_dir/.heroku/php" --installed --quiet heroku-sys/hh
 	engine="hhvm"
 	engine_r="hhvm --php -r"
 fi
+status "5"
+status `php -m`
 
 # log number of installed platform packages
 mmeasure "platform.count" $(composer show -d "$build_dir/.heroku/php" --installed "heroku-sys/*" 2> /dev/null | wc -l)
@@ -519,7 +534,6 @@ export -f composer
 
 # log runtime version
 mcount "platform.packages.php.$($engine_r "echo ${engine^^}_VERSION;")"
-status "platform.packages.php.$($engine_r "echo ${engine^^}_VERSION;")"
 
 if eoldate=$($engine $bp_dir/bin/util/eol.php); then
 	:
