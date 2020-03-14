@@ -408,12 +408,12 @@ status "---------------------------debug-----------------------------"
 #status "testestests"
 #status `cat "$build_dir/.heroku/php/install.log"`
 #status "testestests"
+composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-dev"}
+status "---------------------------debug-----------------------------"
 
-#status "---------------------------debug-----------------------------"
-
-if composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-dev"} 2>&1 | tee $build_dir/.heroku/php/install.log | ( grep --line-buffered -E '^  - (Instal|Enab)ling heroku-sys/' | sed -u -E -e 's/^  - (Instal|Enab)ling /- /' -e 's/heroku-sys\///g' || true ) | indent; then
-	:
-fi
+#if composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-dev"} 2>&1 | tee $build_dir/.heroku/php/install.log | ( grep --line-buffered -E '^  - (Instal|Enab)ling heroku-sys/' | sed -u -E -e 's/^  - (Instal|Enab)ling /- /' -e 's/heroku-sys\///g' || true ) | indent; then
+#	:
+#fi
 
 if composer show -d "$build_dir/.heroku/php" --installed --quiet heroku-sys/php 2>/dev/null; then
 	engine="php"
