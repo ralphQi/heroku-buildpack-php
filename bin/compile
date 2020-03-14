@@ -405,7 +405,9 @@ export profile_dir_path=$build_dir/.profile.d
 status "---------------------------debug-----------------------------"
 #status `ls "$build_dir/.heroku/php/bin/"`
 #status `cat "$build_dir/.heroku/php/composer.json"`
-status `cat $build_dir/.heroku/php/install.log`
+status "testestests"
+status `cat "$build_dir/.heroku/php/install.log"`
+status "testestests"
 
 status "---------------------------debug-----------------------------"
 
