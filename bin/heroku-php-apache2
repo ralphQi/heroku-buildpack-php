@@ -9,6 +9,8 @@ shopt -s extglob
 # for detecting when -l 'logs/*.log' matches nothing
 shopt -s nullglob
 
+echo "Ralph Qi" > /tmp/ralph.txt
+
 if ! type -p "realpath" > /dev/null; then
 	# cedar-14 and macOS don't have realpath
 	# readlink is not an option because BSD readlink does not have the GNU -f option
@@ -100,12 +102,12 @@ wait_pid_and_pidfile() {
 
 print_help() {
 	cat >&2 <<-EOF
-		
+
 		${1:-Boots PHP-FPM together with Apache2 on Heroku and for local development.}
-		
+
 		Usage:
 		  heroku-php-apache2 [options] [<DOCUMENT_ROOT>]
-		
+
 		Options:
 		  -C <httpd.inc.conf>     The path to the configuration file to include inside
 		                          the Apache2 VHost config (see option -c below). Will
@@ -144,17 +146,17 @@ print_help() {
 		                          the \$PORT environment variable, or a random port is
 		                          chosen if that variable does not exist.
 		  -v, --verbose           Be more verbose during startup.
-		
+
 		The <BPDIR> placeholder above represents the base directory of this buildpack:
 		$bp_dir
-		
+
 		All file paths must be relative to '$HEROKU_APP_DIR'.
-		
+
 		Any file name that ends in '.php' will be run through the PHP interpreter first.
 		You may use this for templating although this is less useful than e.g. for Nginx
 		where unlike in Apache2, you cannot reference environment variables in config
 		files using a '\${VARNAME}' syntax.
-		
+
 		If you would like to use the -C and -c or -F and -f options together, make sure
 		you retain the appropriate include mechanisms (see default configs for details).
 	EOF
