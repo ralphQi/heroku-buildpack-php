@@ -358,10 +358,7 @@ else
 	HEROKU_PHP_DEFAULT_RUNTIME_VERSION="^7.0.0"
 fi
 export HEROKU_PHP_DEFAULT_RUNTIME_VERSION
-status "--------------------denbug--------------------"
-# status `ls "$build_dir/.heroku/php"`
-status `php -m `
-status "--------------------denbug--------------------"
+
 # extract requirements from composer.lock
 /app/.heroku/php-min/bin/php $bp_dir/bin/util/platform.php "$bp_dir/support/installer/" $HEROKU_PHP_PLATFORM_REPOSITORIES 2>&1 >$build_dir/.heroku/php/composer.json | indent || {
 	code=$?
@@ -398,20 +395,17 @@ status "--------------------denbug--------------------"
 # reset COMPOSER for the platform install step
 COMPOSER_bak="$COMPOSER"
 export COMPOSER=composer.json
-status "--------------------denbug--------------------"
-# status `ls "$build_dir/.heroku/php"`
-status `php -m `
-status "--------------------denbug--------------------"
+
 # pass export_file_path and profile_dir_path to composer install; they will be used by the installer plugin
 # they are also used in later install attempts for add-on extensions (blackfire, newrelic, ...)
 export export_file_path=$bp_dir/export
 export profile_dir_path=$build_dir/.profile.d
 # grep and sed in a subshell with || true, or a failing grep match will cause the exit code to be 1 if "composer install" fails with code 2
 
-status "--------------------denbug--------------------"
-# status `ls "$build_dir/.heroku/php"`
-status `php -m `
-status "--------------------denbug--------------------"
+status "-----------------------debug-----------------------"
+status `ls "$build_dir/.heroku/php"`
+status `cat "$build_dir/.heroku/php/composer.json"`
+status "-----------------------debug-----------------------"
 if composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-dev"} 2>&1 | tee $build_dir/.heroku/php/install.log | ( grep --line-buffered -E '^  - (Instal|Enab)ling heroku-sys/' | sed -u -E -e 's/^  - (Instal|Enab)ling /- /' -e 's/heroku-sys\///g' || true ) | indent; then
 	:
 else
