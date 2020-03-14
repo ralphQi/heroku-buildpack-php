@@ -403,11 +403,14 @@ export profile_dir_path=$build_dir/.profile.d
 # grep and sed in a subshell with || true, or a failing grep match will cause the exit code to be 1 if "composer install" fails with code 2
 
 status "0"
+status `which php`
 
 if composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-dev"} 2>&1 | tee $build_dir/.heroku/php/install.log | ( grep --line-buffered -E '^  - (Instal|Enab)ling heroku-sys/' | sed -u -E -e 's/^  - (Instal|Enab)ling /- /' -e 's/heroku-sys\///g' || true ) | indent; then
-	:
+	status "0.5"
+	status `which php`
 else
 	status "1"
+	status `which php`
 	code=$?
 	install_log=$(
 		cat $build_dir/.heroku/php/install.log | sed -E \
@@ -488,6 +491,7 @@ else
 	EOF
 fi
 status "80"
+status `which php`
 if composer show -d "$build_dir/.heroku/php" --installed --quiet heroku-sys/php 2>/dev/null; then
 	engine="php"
 	engine_r="php -r"
@@ -495,8 +499,6 @@ elif composer show -d "$build_dir/.heroku/php" --installed --quiet heroku-sys/hh
 	engine="hhvm"
 	engine_r="hhvm --php -r"
 fi
-
-status "100"
 
 # log number of installed platform packages
 mmeasure "platform.count" $(composer show -d "$build_dir/.heroku/php" --installed "heroku-sys/*" 2> /dev/null | wc -l)
