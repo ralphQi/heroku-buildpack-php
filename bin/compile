@@ -25,7 +25,6 @@ source $bp_dir/bin/util/common.sh
 # use err_trap from common.sh on error
 # we do not 'set -o errtrace', because that would cause subshell failures to fire the trap twice, e.g. with someval=$(func_that_fails)
 trap 'err_trap' ERR
-status "-----------------recover-----------------"
 
 # stdlib
 # download to a file first, as the function restarts the entire download on code 18 connection reset (not all servers support -C)
@@ -360,8 +359,6 @@ else
 fi
 export HEROKU_PHP_DEFAULT_RUNTIME_VERSION
 
-status `php -m`
-
 # extract requirements from composer.lock
 /app/.heroku/php-min/bin/php $bp_dir/bin/util/platform.php "$bp_dir/support/installer/" $HEROKU_PHP_PLATFORM_REPOSITORIES 2>&1 >$build_dir/.heroku/php/composer.json | indent || {
 	code=$?
@@ -408,6 +405,9 @@ if composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-d
 	:
 else
 	code=$?
+	status "-------------------------------debug-------------------------------"
+	status `echo $code`
+	status "-------------------------------debug-------------------------------"
 	install_log=$(
 		cat $build_dir/.heroku/php/install.log | sed -E \
 			-e 's/heroku-sys\///g' \
@@ -580,8 +580,6 @@ else
 		EOF
 	fi
 fi
-
-status `php -m`
 
 status "Installing dependencies..."
 
