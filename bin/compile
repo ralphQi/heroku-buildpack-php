@@ -402,18 +402,97 @@ export export_file_path=$bp_dir/export
 export profile_dir_path=$build_dir/.profile.d
 # grep and sed in a subshell with || true, or a failing grep match will cause the exit code to be 1 if "composer install" fails with code 2
 
-#status "---------------------------debug-----------------------------"
+status "---------------------------debug-----------------------------"
 #status `ls "$build_dir/.heroku/php/bin/"`
 #status `cat "$build_dir/.heroku/php/composer.json"`
 #status "testestests"
 #status `cat "$build_dir/.heroku/php/install.log"`
 #status "testestests"
-#composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-dev"}
-#status "---------------------------debug-----------------------------"
 
-#if composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-dev"} 2>&1 | tee $build_dir/.heroku/php/install.log | ( grep --line-buffered -E '^  - (Instal|Enab)ling heroku-sys/' | sed -u -E -e 's/^  - (Instal|Enab)ling /- /' -e 's/heroku-sys\///g' || true ) | indent; then
-#	:
-#fi
+status "---------------------------debug-----------------------------"
+
+if composer install -d "$build_dir/.heroku/php" ${HEROKU_PHP_INSTALL_DEV-"--no-dev"} 2>&1 | tee $build_dir/.heroku/php/install.log | ( grep --line-buffered -E '^  - (Instal|Enab)ling heroku-sys/' | sed -u -E -e 's/^  - (Instal|Enab)ling /- /' -e 's/heroku-sys\///g' || true ) | indent; then
+	:
+else
+	code=$?
+	install_log=$(
+		cat $build_dir/.heroku/php/install.log | sed -E \
+			-e 's/heroku-sys\///g' \
+			-e 's/^Loading composer repositories with package information/Loading repositories with available runtimes and extensions/' \
+			-e 's/^Installing dependencies.*//' \
+			-e '/^Potential causes:/,$d' \
+			-e "\#satisfiable by ${COMPOSER}/${COMPOSER_LOCK}#d" \
+			-e "s#(${COMPOSER}/${COMPOSER_LOCK}) dev-[0-9a-f]+#\1#" \
+			-e 's/^/> /'
+	)
+	if [[ $code -eq 2 ]]; then
+		# dependency solving failed
+		mcount "failures.platform.solving.$(detect_platform_solving_failures <<< "$install_log")"
+	else
+		# something else
+		mcount "failures.platform.install.$(detect_platform_install_failures <<< "$install_log")"
+	fi
+
+	error <<-EOF
+		Failed to install system packages!
+
+		Your platform requirements (for runtimes and extensions) could
+		not be resolved to an installable set of dependencies, or a
+		platform package repository was unreachable.
+
+		This usually means that you (or packages you are using) depend
+		on a combination of PHP versions and/or extensions that are
+		currently not available on Heroku.
+
+		The following is the full output from the installation attempt:
+
+		$install_log
+		$(
+			$composer_lock_outdated && cat <<-EOF2
+				$(echo -e "\033[1;33m")
+				A possible cause for this error is your '$COMPOSER_LOCK' file,
+				which is currently out of date, as changes have been made to
+				your '$COMPOSER' that are not yet reflected in the lock file.
+
+				In order to guarantee reliable installation of system packages,
+				Heroku uses information from '$COMPOSER_LOCK'.
+
+				If you already attempted to fix the error above by updating the
+				requirements in '$COMPOSER', remember to also update the
+				lock file by running 'composer update', followed by a 'git add'
+				and 'git commit' of the changes. The warning message further
+				above contains step-by-step instructions.
+
+				Please remember to always keep your '$COMPOSER_LOCK' updated in
+				lockstep with '$COMPOSER' to avoid common problems related
+				to dependencies during collaboration and deployment.
+				$(echo -e "\033[1;31m")
+			EOF2
+		)
+		For reference, the following runtimes are currently available:
+
+		PHP:  $(composer show -d "$build_dir/.heroku/php" --available heroku-sys/php 2>&1 | sed -n 's/^versions : //p' | fold -s -w 58 || true)
+		HHVM: $(composer show -d "$build_dir/.heroku/php" --available heroku-sys/hhvm 2>&1 | sed -n 's/^versions : //p' | fold -s -w 58 || true)
+
+		Please verify that all requirements for runtime versions in
+		'$COMPOSER_LOCK' are compatible with the list above, and ensure
+		all required extensions are available for the desired runtimes.
+
+		When choosing a PHP runtimes and extensions, please also ensure
+		they are available on your app's stack ($STACK), and select
+		a different stack if needed after consulting the article below.
+		$(
+			[[ "$STACK" == "heroku-18" ]] && cat <<-EOF2
+				$(echo -e "\033[1;33m")
+				Be advised that the heroku-18 stack you're currently using only
+				supports PHP version 7.1 and later.
+				$(echo -e "\033[1;31m")
+			EOF2
+		)
+		For a list of supported runtimes & extensions on Heroku, please
+		refer to: https://devcenter.heroku.com/articles/php-support
+	EOF
+fi
 
 if composer show -d "$build_dir/.heroku/php" --installed --quiet heroku-sys/php 2>/dev/null; then
 	engine="php"
